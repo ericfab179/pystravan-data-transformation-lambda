@@ -3,6 +3,7 @@
 import os
 import pulumi
 import zipfile
+import json
 
 import pulumi_aws as aws
 
@@ -19,6 +20,8 @@ function_name = 'cycling-data-transformation-data'
 handler_name = 'handler.lambda_handler'
 runtime = 'python3.8'
 
+create_zip_from_folder(folder_path, zip_file_path)
+
 lambda_iam_role = aws.iam.Role(function_name,
             assume_role_policy="""{
                 "Version": "2012-10-17",
@@ -31,37 +34,41 @@ lambda_iam_role = aws.iam.Role(function_name,
                     "Sid": ""
                 }]
             }""",
-            inline_policies={
-                "lambda_execution_policy": """{
-                    "Version": "2012-10-17",
-                    "Statement": [{
-                        "Action": [
-                            "logs:CreateLogGroup",
-                            "logs:CreateLogStream",
-                            "logs:PutLogEvents"
-                        ],
-                        "Resource": "arn:aws:logs:*:*:*",
-                        "Effect": "Allow"
-                    },
-                    {
-                        "Action": [
-                            "s3:GetObject",
-                            "s3:PutObject"
-                        ],
-                        "Resource": [
-                            "arn:aws:s3:::your_source_bucket_nameCHANGE_ME/*",
-                            "arn:aws:s3:::your_destination_bucket_nameCHANGE_ME/*"
-                        ],
-                        "Effect": "Allow"
-                    }]
-                }"""
-            }
+            inline_policies=[
+                aws.iam.RoleInlinePolicyArgs(
+                    name="my_inline_policy",
+                    policy="""{
+                            "Version": "2012-10-17",
+                            "Statement": [{
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents"
+                                ],
+                                "Resource": "arn:aws:logs:*:*:*",
+                                "Effect": "Allow"
+                            },
+                            {
+                                "Action": [
+                                    "s3:GetObject",
+                                    "s3:PutObject"
+                                ],
+                                "Resource": [
+                                    "arn:aws:s3:::your_source_bucket_nameCHANGE_ME/*",
+                                    "arn:aws:s3:::your_destination_bucket_nameCHANGE_ME/*"
+                                ],
+                                "Effect": "Allow"
+                            }]
+                        }""",
+                )
+            ]
         )
+
 
 lambda_function = aws.lambda_.Function(
         function_name,
         role=lambda_iam_role,
-        code=aws.lambda_.Code.from_asset(zip_file_path),
+        code=zip_file_path,
         handler=handler_name,
         runtime=runtime
     )
