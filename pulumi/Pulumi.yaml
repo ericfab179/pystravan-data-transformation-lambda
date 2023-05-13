@@ -1,0 +1,6 @@
+name: cycling-data-transformation-lambda
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: Lambda function to transform Endava cycling club data.
