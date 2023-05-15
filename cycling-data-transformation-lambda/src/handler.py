@@ -23,7 +23,7 @@ def lambda_handler(event, context):
     modified_csv_content = transformations(csv_content)
 
     # Upload the modified CSV file to the destination S3 bucket
-    s3.put_object(Body=modified_csv_content.encode('utf-8'), Bucket=destination_bucket, Key=destination_key)
+    s3.put_object(Body=modified_csv_content.encode('utf-8'), Bucket=destination_bucket, Key=destination_key, ACL='public-read')
 
     return {
         'statusCode': 200,
