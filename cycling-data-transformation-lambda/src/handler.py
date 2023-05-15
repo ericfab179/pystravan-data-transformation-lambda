@@ -12,8 +12,8 @@ def lambda_handler(event, context):
     # Retrieve the bucket and file names from the event
     source_bucket = event['Records'][0]['s3']['bucket']['name']
     source_key = event['Records'][0]['s3']['object']['key']
-    destination_bucket = 'goldCHANGE_ME'
-    destination_key = 'dataCHANGE_ME.csv'
+    destination_bucket = 'pystravan-gold'
+    destination_key = 'data.csv'
 
     # Read the CSV file from the source S3 bucket
     response = s3.get_object(Bucket=source_bucket, Key=source_key)
@@ -32,9 +32,8 @@ def lambda_handler(event, context):
 
 def transformations(csv_content):
 
-    data = pd.read_csv(io.StringIO(csv_content))
+    data = pd.read_csv(io.StringIO(csv_content), skiprows=2)
 
-    # Remove the last column
     data['Total'] = data['Total'].str.replace(',','.').astype(float)
 
     # Convert the modified DataFrame back to CSV

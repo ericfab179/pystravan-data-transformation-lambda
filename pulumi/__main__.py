@@ -4,6 +4,7 @@ import os
 import pulumi
 import zipfile
 import json
+from datetime import datetime
 
 import pulumi_aws as aws
 
@@ -14,8 +15,10 @@ def create_zip_from_folder(folder_path, zip_file_path):
                 file_path = os.path.join(root, file)
                 zipf.write(file_path, os.path.relpath(file_path, folder_path))
 
+
+
 folder_path = '../cycling-data-transformation-lambda/.aws-sam/build/CyclingDataTransformationFunction'
-zip_file_path = 'lambda_package.zip'
+zip_file_path = f'lambda_package_{str(int(datetime.now().timestamp()))}.zip'
 function_name = 'cycling-data-transformation-data'
 handler_name = 'handler.lambda_handler'
 runtime = 'python3.8'
@@ -50,12 +53,12 @@ lambda_iam_role = aws.iam.Role(function_name,
                             },
                             {
                                 "Action": [
-                                    "s3:GetObject",
+                                     "s3:GetObject",
                                     "s3:PutObject"
                                 ],
                                 "Resource": [
-                                    "arn:aws:s3:::your_source_bucket_nameCHANGE_ME/*",
-                                    "arn:aws:s3:::your_destination_bucket_nameCHANGE_ME/*"
+                                    "arn:aws:s3:::pystravan-silver/*",
+                                    "arn:aws:s3:::pystravan-gold/*"
                                 ],
                                 "Effect": "Allow"
                             }]
@@ -67,10 +70,11 @@ lambda_iam_role = aws.iam.Role(function_name,
 
 lambda_function = aws.lambda_.Function(
         function_name,
-        role=lambda_iam_role,
+        role=lambda_iam_role.arn,
         code=zip_file_path,
         handler=handler_name,
-        runtime=runtime
+        runtime=runtime,
+        timeout=60
     )
 
 # Export the function's ARN

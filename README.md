@@ -9,6 +9,7 @@ sam build
 ```
 
 # Deploy using Pulumi
+1. Install pulumi https://www.pulumi.com/docs/get-started/aws/begin/
 1. Be sure that you have built locally the lmabda function. The folder should exist `cycling-data-transformation-lambda/.aws-sam/build/CyclingDataTransformationFunction` and should have the lambda package content.
 2. Make sure your terminal has the right AWS credentials
 3. Run
