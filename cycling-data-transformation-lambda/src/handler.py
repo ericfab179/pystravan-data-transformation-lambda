@@ -37,6 +37,6 @@ def transformations(csv_content):
     data['Total'] = data['Total'].str.replace(',','.').astype(float)
 
     # Convert the modified DataFrame back to CSV
-    modified_csv_content = data.to_csv(index=False)
+    modified_csv_content = data[data.Total > 0].to_csv(index=False)
 
     return modified_csv_content
